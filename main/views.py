@@ -33,21 +33,32 @@ def get_specific_quote(request):
     if request.method == "POST":
         anime = request.POST['selectAnimeInput']
 
-        response = requests.get(f'https://animechan.vercel.app/api/quotes/anime?title={anime}')
+        quotes = []
+        page = 1
+        while True:
+            response = requests.get(f'https://animechan.vercel.app/api/quotes/anime?title={anime}&page={page}')
 
-        if response.status_code == 429:  # if default rate limit is hit
-            return HttpResponse(RATE_LIMIT_ERROR)
+            if response.status_code == 404:  # no quotes found
+                break
 
-        quotes = list(response.json())
+            if response.status_code == 429:  # if default rate limit is hit
+                return HttpResponse(RATE_LIMIT_ERROR)
+
+            quotes += list(response.json())
+            page += 1
+
+            if page == 4:  # limit to just first 2 pages
+                break
+
         quote = quotes[randrange(len(quotes))]  # pick a random quote from the quotes list
 
         q = save_quote(quote)
 
         return HttpResponse(f"""
-            <h4>"{ q.quote }"</h4>
-            <p>~ { q.character }, { q.anime }</p>
+            <h4>"{q.quote}"</h4>
+            <p>~ {q.character}, {q.anime}</p>
             <h4>
-            <i class="far fa-heart" hx-get="like-quote-{ q.pk }" hx-swap="outerHTML" hx-indicator="#quote-load-indicator"></i>
+            <i class="far fa-heart" hx-get="like-quote-{q.pk}" hx-swap="outerHTML" hx-indicator="#quote-load-indicator"></i>
             </h4>
         """)
     else:
@@ -63,17 +74,17 @@ def get_specific_quote(request):
                     <h4>"{q.quote}"</h4>
                     <p>~ {q.character}, {q.anime}</p>
                     <h3>
-                    <i class="far fa-heart" hx-get="like-quote-{ q.pk }" hx-swap="outerHTML" hx-indicator="#quote-load-indicator"></i>
+                    <i class="far fa-heart" hx-get="like-quote-{q.pk}" hx-swap="outerHTML" hx-indicator="#quote-load-indicator"></i>
                     </h3>
                 """)
 
 
 def like_quote(request, pk):
-        quote = Quote.objects.get(pk=pk)
-        quote.likes += 1
-        quote.save(update_fields=['likes'])
+    quote = Quote.objects.get(pk=pk)
+    quote.likes += 1
+    quote.save(update_fields=['likes'])
 
-        return HttpResponse(f"""
+    return HttpResponse(f"""
             <i class="fas fa-heart" hx-get="unlike-quote-{quote.pk}" hx-swap="outerHTML" hx-indicator="#quote-load-indicator"></i>
         """)
 
