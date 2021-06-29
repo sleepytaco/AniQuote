@@ -24,4 +24,4 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 - Font by [Google Font](https://fonts.google.com/) and Icons by [Font Awesome](fontawesome.com/).
 ## Open-source libraries used
 - [htmx](https://htmx.org) - Access AJAX, CSS Transitions, WebSockets and Server Sent Events directly in HTML, using attributes
-- [Skeleton](http://getskeleton.com/) -l Responsive CSS Boilerplate
+- [Skeleton](http://getskeleton.com/) - Responsive CSS Boilerplate
