@@ -14,7 +14,7 @@ Main goal of the website was to create a single page application using Django as
 
 ## Walkthough
 
-<img src='' title='Website Walkthrough' width='50%' height='50%' alt='Website Walkthrough' />
+<img src='walkthrough.gif' title='Website Walkthrough' width='50%' height='50%' alt='Website Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 

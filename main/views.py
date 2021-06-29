@@ -38,7 +38,7 @@ def get_specific_quote(request):
         while True:
             response = requests.get(f'https://animechan.vercel.app/api/quotes/anime?title={anime}&page={page}')
 
-            if response.status_code == 404:  # no quotes found
+            if response.status_code == 404:  # no quotes found on this page
                 break
 
             if response.status_code == 429:  # if default rate limit is hit
@@ -47,7 +47,7 @@ def get_specific_quote(request):
             quotes += list(response.json())
             page += 1
 
-            if page == 4:  # limit to just first 2 pages
+            if page == 3:  # limit to just first 2 pages
                 break
 
         quote = quotes[randrange(len(quotes))]  # pick a random quote from the quotes list
