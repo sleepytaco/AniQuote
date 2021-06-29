@@ -1,10 +1,21 @@
 import requests
-from main.models import Quote
+from .models import Quote
+
+RATE_LIMIT_ERROR = """
+                <div id="retry-result">
+                <h4>Default rate limit of <a href="https://animechan.vercel.app/guide#pagination" style="color: black; text-decoration: none; border-bottom: 3px red dashed;">100 requests per hour</a> has been reached :(</h4>
+                
+                <button class="button" onclick="location.reload();">Refresh Page</button>
+                </div>
+                """
 
 
 # returns a list of all the possible anime available
 def get_available_anime():
     response = requests.get('https://animechan.vercel.app/api/available/anime')
+
+    if response.status_code == 429:  # default request limit of 100 was reached
+        return ["N/A"]
 
     anime_list = list(response.json())
 

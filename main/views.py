@@ -1,9 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render
-import requests
 from django.template import loader
 from random import randrange
-from .models import Quote
 from .util import *
 
 
@@ -22,12 +20,7 @@ def get_random_quote(request):
     response = requests.get('https://animechan.vercel.app/api/random')
 
     if response.status_code == 429:  # if default rate limit is hit
-        return HttpResponse("""
-        <h4>Default rate limit of 100 requests per hour has been reached :(</h4>
-        <a class="button button" href="#quote" hx-get="get-random-quote" hx-target="#quote-result" hx-indicator="#quote-load-indicator">
-            RETRY
-        </a>
-        """)
+        return HttpResponse(RATE_LIMIT_ERROR)
 
     quote = response.json()
 
@@ -43,12 +36,7 @@ def get_specific_quote(request):
         response = requests.get(f'https://animechan.vercel.app/api/quotes/anime?title={anime}')
 
         if response.status_code == 429:  # if default rate limit is hit
-            return HttpResponse("""
-                <h4>Default rate limit of 100 requests per hour has been reached :(</h4>
-                <a class="button button" href="#quote" hx-get="get-random-quote" hx-target="#quote-result" hx-indicator="#quote-load-indicator">
-                    RETRY
-                </a>
-                """)
+            return HttpResponse(RATE_LIMIT_ERROR)
 
         quotes = list(response.json())
         quote = quotes[randrange(len(quotes))]  # pick a random quote from the quotes list
@@ -66,14 +54,7 @@ def get_specific_quote(request):
         response = requests.get('https://animechan.vercel.app/api/random')
 
         if response.status_code == 429:  # if default rate limit is hit
-            return HttpResponse("""
-                <div id="retry-result">
-                <h4>Default rate limit of 100 requests per hour has been reached :(</h4>
-                <a class="button button" href="#quote" hx-get="get-random-quote" hx-target="#retry-result" hx-indicator="#quote-load-indicator">
-                    RETRY
-                </a>
-                </div>
-                """)
+            return HttpResponse(RATE_LIMIT_ERROR)
 
         quote = response.json()
         q = save_quote(quote)
@@ -87,21 +68,21 @@ def get_specific_quote(request):
                 """)
 
 
-def like_quote(request, id):
-        quote = Quote.objects.get(pk=id)
+def like_quote(request, pk):
+        quote = Quote.objects.get(pk=pk)
         quote.likes += 1
         quote.save(update_fields=['likes'])
 
         return HttpResponse(f"""
-            <i class="fas fa-heart" hx-get="like-quote-{quote.pk}" hx-swap="outerHTML" hx-indicator="#quote-load-indicator"></i>
+            <i class="fas fa-heart" hx-get="unlike-quote-{quote.pk}" hx-swap="outerHTML" hx-indicator="#quote-load-indicator"></i>
         """)
 
 
-def unlike_quote(request, id):
-    quote = Quote.objects.get(pk=id)
+def unlike_quote(request, pk):
+    quote = Quote.objects.get(pk=pk)
     quote.likes -= 1
     quote.save(update_fields=['likes'])
 
     return HttpResponse(f"""
-            <i class="far fa-heart" hx-get="unlike-quote-{quote.pk}" hx-swap="outerHTML" hx-indicator="#quote-load-indicator"></i>
+            <i class="far fa-heart" hx-get="like-quote-{quote.pk}" hx-swap="outerHTML" hx-indicator="#quote-load-indicator"></i>
         """)
