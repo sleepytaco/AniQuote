@@ -1,0 +1,155 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Basic Page Needs
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <meta charset="utf-8">
+    <title>AniQuote</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Mobile Specific Metas
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- FONT
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Open+Sans&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/5baac7e9b7.js" crossorigin="anonymous"></script>
+
+    <!-- CSS
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link rel="stylesheet" href="{% static 'Skeleton-2.0.4/css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'Skeleton-2.0.4/css/skeleton.css' %}">
+
+    <style type="text/css">
+        /*
+        Background Gradient By:
+        Manuel Pinto
+        https://manuelpinto.in
+        https://codepen.io/P1N2O/pen/pyBNzX
+        */
+        body {
+        background: linear-gradient(-45deg, #ee7752, #d6e73c, #23a6d5, #23d5ab);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+        }
+
+        @keyframes gradient {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+        }
+
+        .section {
+        padding: 20rem 0 19rem;
+        text-align: center;
+        }
+
+        a {
+        color: #dcd3d3;
+        }
+        </style>
+
+    <!-- Favicon
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link rel="icon" type="image/png" href="{% static 'Skeleton-2.0.4/images/favicon.png' %}">
+
+</head>
+<body style="font-family: Fredoka One;">
+
+    <!-- Primary Page Layout
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <div class="section" id="home">
+        <div class="container">
+            <h1><span style="border-bottom: 3px #d0c0c0 dashed;">AniQuote</span></h1>
+            <h5>A random anime quote generator with quotes powered by <a href="https://github.com/RocktimSaikia/anime-chan" target="_blank">Animechan API</a>. <br>
+            Built with ❤
+            using <a href="https://www.djangoproject.com/" target="_blank">Django</a>, <a href="https://htmx.org" target="_blank">htmx</a> and <a href="http://getskeleton.com/" target="_blank">Skeleton</a>.
+            </h5>
+
+            <a class="button button-primary" href="#random">
+                GENERATE RANDOM
+            </a>
+            <a class="button button" href="#specific">
+                GENERATE SPECIFIC
+            </a>
+
+            <h4 style="margin-top: 7%">-<span style="padding-right: 1%; padding-left: 1%"><a href="https://github.com/sleepytaco/QuickGIF" style="color: rgb(0, 0, 0);" target="_blank"><i class="fab fa-github"></i></a></span>-</h4>
+
+        </div>
+    </div>
+
+    <div class="section" id="random">
+        <div id="quote-result" style="padding-left:5%; padding-right: 5%">
+            <div hx-get="get-random-quote" hx-trigger="load" hx-swap="outerHTML">
+            </div>
+        </div>
+        <img id="quote-load-indicator" src="{% static 'svg-loaders/grid.svg' %}" height="40" width="40" class="htmx-indicator" style="margin: 1.5%;">
+    </div>
+
+    <div class="section" id="specific">
+        <div class="container" >
+            <form>
+              <div class="row">
+                  <div class="one-half column" style="border-right: 6px solid black; padding-right: 5%">
+                      <h3><span style="border-bottom: 3px #d0c0c0 dashed;">Generate Specific</span></h3>
+
+                    <label for="selectAnimeInput">Select Anime</label>
+                    <select class="u-full-width" id="selectAnimeInput" name="selectAnimeInput">
+                    {% for anime in anime_list %}
+                    <option value="{{ anime }}" {% if forloop.first %} selected {% endif %}>{{ anime }}</option>
+                    {% endfor %}
+                    </select>
+
+                    <button class="button-primary" hx-post="get-specific-quote" hx-include="[id='selectAnimeInput']" hx-target="#specific-quote-result" hx-indicator="#specific-quote-load-indicator">
+                        Generate
+                    </button>
+                </div>
+
+                <div class="one-half column" style="">
+                    <div id="specific-quote-result">
+                        <div hx-get="get-specific-quote" hx-trigger="load" hx-swap="outerHTML">
+                        </div>
+                    </div>
+                    <img id="specific-quote-load-indicator" src="{% static 'svg-loaders/grid.svg' %}" height="40" width="40" class="htmx-indicator" style="margin: 1.5%;">
+                </div>
+              </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="container" id="specific">
+            <h3><span style="border-bottom: 3px #d0c0c0 dashed;">Top 3 Most Liked Quotes</span></h3>
+            <h5>
+            <ol>
+                {% for quote in quotes %}
+                <li>
+                    "{{ quote.quote }}" <br> ~ {{ quote.character }}, {{ quote.anime }}
+                    <ul>
+                        <li>{{ quote.likes }} likes and {{ quote.views }} views</li>
+                    </ul>
+                </li>
+                {% endfor %}
+            </ol>
+            </h5>
+        </div>
+    </div>
+
+    <script src="{% static 'htmx/htmx.min.js' %}" type="application/javascript"></script>
+    <script type="application/javascript">
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        })
+    </script>
+</body>
+</html>

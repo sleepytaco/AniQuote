@@ -1,0 +1,9 @@
+<h4>"{{ quote.quote }}"</h4>
+<h5>~ {{ quote.character }}, {{ quote.anime }}</h5>
+<a class="button button-primary" href="#quote" hx-get="get-random-quote" hx-target="#quote-result" hx-indicator="#quote-load-indicator">
+    ONE MORE :3
+</a>
+
+<h3>
+    <i class="far fa-heart" hx-get="like-quote-{{ quote.pk }}" hx-swap="outerHTML" hx-indicator="#quote-load-indicator"></i>
+</h3>
